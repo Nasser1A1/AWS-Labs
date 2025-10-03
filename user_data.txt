@@ -1,0 +1,31 @@
+#!/bin/bash
+apt update -y
+apt install -y apache2
+systemctl start apache2
+systemctl enable apache2
+
+# Create unique content for each instance
+INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+
+cat > /var/www/html/index.html << EOF
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Load Balancer Test</title>
+    <style>
+        body { font-family: Arial; text-align: center; margin-top: 50px; }
+        .server-info { background: #f0f0f0; padding: 20px; margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Hello from AWS Load Balancer!</h1>
+    <div class="server-info">
+        <h2>Server Information</h2>
+        <p><strong>Instance ID:</strong> $INSTANCE_ID</p>
+        <p><strong>Availability Zone:</strong> $AZ</p>
+        <p><strong>Timestamp:</strong> $(date)</p>
+    </div>
+</body>
+</html>
+EOF
